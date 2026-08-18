@@ -1,5 +1,21 @@
 # flutter_pty
 
+> **Fork.** The only difference from
+> [TerminalStudio/flutter_pty](https://github.com/TerminalStudio/flutter_pty) is
+> how the native library is built: `hook/build.dart` (a Dart build hook,
+> `native_toolchain_c`) in place of a `.podspec` for iOS and macOS, a
+> `CMakeLists.txt` for Linux, Windows and Android, and a gradle file. The Dart
+> API is untouched.
+>
+> Upstream's last release is 0.4.2 (January 2025) and it has no `Package.swift`,
+> so it holds a CocoaPods dependency open in every project that uses it —
+> Flutter has defaulted to Swift Package Manager since 3.44, and the CocoaPods
+> registry goes read-only on 2026-12-02. The one open PR for this
+> ([#21](https://github.com/TerminalStudio/flutter_pty/pull/21), May 2026) adds
+> a `Package.swift` for macOS only and has had no maintainer response. A build
+> hook covers all five platforms instead, and is neither a pod nor a Swift
+> package, so the question does not arise.
+
 [![ci](https://github.com/TerminalStudio/flutter_pty/actions/workflows/ci.yml/badge.svg)](https://github.com/TerminalStudio/flutter_pty/actions/workflows/ci.yml)
 [![pub points](https://badges.bar/flutter_pty/pub%20points)](https://pub.dev/packages/flutter_pty)
 
