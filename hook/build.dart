@@ -21,6 +21,11 @@ import 'package:native_toolchain_c/native_toolchain_c.dart';
 /// every symbol twice.
 void main(List<String> args) async {
   await build(args, (input, output) async {
+    // Flutter also invokes the hook for non-code-asset phases. `config.code`
+    // is intentionally unavailable then, so do not inspect the target or run
+    // the C builder.
+    if (!input.config.buildCodeAssets) return;
+
     await CBuilder.library(
       name: 'flutter_pty',
       assetName: 'flutter_pty',
