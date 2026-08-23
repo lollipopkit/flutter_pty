@@ -24,8 +24,15 @@ dev_dependencies:
 
   # Drive the build from `hook/build.dart` instead of a podspec, two
   # CMakeLists and a gradle file. See the comment there for why.
+  #
+  # `hooks` has to be ^2.0.0, not ^1.0.0: `native_toolchain_c` 0.19 requires it,
+  # so the pair does not resolve otherwise. The app never noticed — these are
+  # dev_dependencies, and a path dependency's dev_dependencies take no part in
+  # the root's solve, which is where the hook actually runs (against `hooks`
+  # 2.2.0). Only this package's own `flutter pub get` failed. The hook is
+  # already written against the 2.x `input`/`output` API and needs no change.
   code_assets: ^1.0.0
-  hooks: ^1.0.0
+  hooks: ^2.0.0
   native_toolchain_c: ^0.19.0
 
 # For information on the generic Dart part of this file, see the
