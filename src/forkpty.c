@@ -80,6 +80,13 @@ pid_t pty_forkpty(
         {
             *slave = pts;
         }
+        else
+        {
+            // Nobody asked for it, and the child has its own copy. Kept open
+            // here it was one descriptor leaked per terminal, and the master
+            // never read end-of-file: an open slave is a terminal still in use.
+            close(pts);
+        }
     }
 
     return pid;

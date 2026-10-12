@@ -123,6 +123,7 @@ class Pty {
       throw StateError('Failed to create PTY: ${_getPtyError()}');
     }
 
+    _output;
     _exitPort.first.then(_onExitCode);
   }
 
@@ -136,7 +137,25 @@ class Pty {
 
   /// The output stream from the pseudo-terminal. Note that pseudo-terminals
   /// do not distinguish between stdout and stderr.
-  Stream<Uint8List> get output => _stdoutPort.cast();
+  ///
+  /// Ends once everything the process wrote has been delivered, which may be
+  /// after [exitCode] completes: on Linux, Android and macOS the end is a
+  /// marker the read thread posts after the last chunk.
+  Stream<Uint8List> get output => _output.stream;
+
+  /// What [_stdoutPort] delivers, listened to from the start so the port is
+  /// closed at the end of output whether or not anyone reads it.
+  late final _output = () {
+    final controller = StreamController<Uint8List>();
+    _stdoutPort.listen((message) {
+      if (message is Uint8List) {
+        controller.add(message);
+      } else if (message == null) {
+        _stdoutPort.close();
+      }
+    }, onDone: controller.close);
+    return controller;
+  }();
 
   /// A `Future` which completes with the exit code of the process
   /// when the process completes.
@@ -199,7 +218,9 @@ class Pty {
   }
 
   void _onExitCode(dynamic exitCode) {
-    _stdoutPort.close();
+    // Elsewhere the output closes on the read thread's end marker — see
+    // [output]. Windows' read thread posts none.
+    if (Platform.isWindows) _stdoutPort.close();
     _exitPort.close();
     _exitCodeCompleter.complete(exitCode);
   }
