@@ -78,6 +78,14 @@ static void *read_loop(void *arg)
         Dart_PostCObject_DL(options->port, &result);
     }
 
+    // End of output, posted after the last chunk on the same port so that it
+    // arrives after it. The exit status comes from another thread and can
+    // overtake what is still being read; the Dart side closes the output on
+    // this, not on the exit, or a fast command's last output is dropped.
+    Dart_CObject end;
+    end.type = Dart_CObject_kNull;
+    Dart_PostCObject_DL(options->port, &end);
+
     return NULL;
 }
 
